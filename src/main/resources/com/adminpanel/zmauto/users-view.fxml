@@ -59,9 +59,15 @@
         <columns>
           <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
           <TableColumn fx:id="usernameColumn" prefWidth="120.0" text="Username" />
-            <TableColumn fx:id="fullNameColumn" prefWidth="150.0" text="Full Name" />
-            <TableColumn fx:id="emailColumn" prefWidth="200.0" text="Email" />
+            <TableColumn fx:id="firstNameColumn" prefWidth="100.0" text="First Name" />
+            <TableColumn fx:id="lastNameColumn" prefWidth="100.0" text="Last Name" />
+            <TableColumn fx:id="emailColumn" prefWidth="150.0" text="Email" />
+            <TableColumn fx:id="phoneNumberColumn" prefWidth="120.0" text="Phone Number" />
+            <TableColumn fx:id="addressColumn" prefWidth="150.0" text="Address" />
+            <TableColumn fx:id="birthdayColumn" prefWidth="100.0" text="Birthday" />
             <TableColumn fx:id="roleColumn" prefWidth="100.0" text="Role" />
+            <TableColumn fx:id="createdAtColumn" prefWidth="150.0" text="Created At" />
+            <TableColumn fx:id="updatedAtColumn" prefWidth="150.0" text="Updated At" />
         </columns>
          <BorderPane.margin>
             <Insets bottom="10.0" left="20.0" right="20.0" />

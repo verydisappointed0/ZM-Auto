@@ -10,49 +10,60 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reservations")
 public class Reservation {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    
+
     @ManyToOne
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
-    
+
+    @Column(name = "driver_needed")
+    private Boolean driverNeeded;
+
+    @ManyToOne
+    @JoinColumn(name = "driver_id")
+    private Driver driver;
+
     @Column(nullable = false)
     private LocalDate startDate;
-    
+
     @Column(nullable = false)
     private LocalDate endDate;
-    
+
     @Column(nullable = false)
     private String status; // PENDING, APPROVED, REJECTED, CANCELLED
-    
+
     @Column
     private String notes;
-    
+
     @Column(nullable = false)
     private Double totalCost;
-    
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
-    
+
     @Column
     private LocalDateTime updatedAt;
-    
+
     // Default constructor required by JPA
     public Reservation() {
         this.createdAt = LocalDateTime.now();
+        this.driverNeeded = false;
     }
-    
-    public Reservation(User user, Vehicle vehicle, LocalDate startDate, LocalDate endDate, 
+
+    public Reservation(User user, Vehicle vehicle, Boolean driverNeeded, Driver driver, 
+                      LocalDate startDate, LocalDate endDate, 
                       String status, String notes, Double totalCost) {
         this.user = user;
         this.vehicle = vehicle;
+        this.driverNeeded = driverNeeded;
+        this.driver = driver;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
@@ -60,90 +71,112 @@ public class Reservation {
         this.totalCost = totalCost;
         this.createdAt = LocalDateTime.now();
     }
-    
+
+    // Constructor without driver for backward compatibility
+    public Reservation(User user, Vehicle vehicle, LocalDate startDate, LocalDate endDate, 
+                      String status, String notes, Double totalCost) {
+        this(user, vehicle, false, null, startDate, endDate, status, notes, totalCost);
+    }
+
     // Getters and setters
-    
+
     public Long getId() {
         return id;
     }
-    
+
     public void setId(Long id) {
         this.id = id;
     }
-    
+
     public User getUser() {
         return user;
     }
-    
+
     public void setUser(User user) {
         this.user = user;
     }
-    
+
     public Vehicle getVehicle() {
         return vehicle;
     }
-    
+
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
     }
-    
+
+    public Boolean getDriverNeeded() {
+        return driverNeeded;
+    }
+
+    public void setDriverNeeded(Boolean driverNeeded) {
+        this.driverNeeded = driverNeeded;
+    }
+
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
+
     public LocalDate getStartDate() {
         return startDate;
     }
-    
+
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
-    
+
     public LocalDate getEndDate() {
         return endDate;
     }
-    
+
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
-    
+
     public String getStatus() {
         return status;
     }
-    
+
     public void setStatus(String status) {
         this.status = status;
         this.updatedAt = LocalDateTime.now();
     }
-    
+
     public String getNotes() {
         return notes;
     }
-    
+
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    
+
     public Double getTotalCost() {
         return totalCost;
     }
-    
+
     public void setTotalCost(Double totalCost) {
         this.totalCost = totalCost;
     }
-    
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-    
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-    
+
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    
+
     /**
      * Approve this reservation request.
      * 
@@ -156,7 +189,7 @@ public class Reservation {
         }
         this.updatedAt = LocalDateTime.now();
     }
-    
+
     /**
      * Reject this reservation request.
      * 
@@ -169,13 +202,15 @@ public class Reservation {
         }
         this.updatedAt = LocalDateTime.now();
     }
-    
+
     @Override
     public String toString() {
         return "Reservation{" +
                 "id=" + id +
                 ", user=" + (user != null ? user.getUsername() : "null") +
                 ", vehicle=" + (vehicle != null ? vehicle.getLicensePlate() : "null") +
+                ", driverNeeded=" + driverNeeded +
+                ", driver=" + (driver != null ? driver.getFirstName() + " " + driver.getLastName() : "null") +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", status='" + status + '\'' +

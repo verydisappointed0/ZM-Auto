@@ -54,7 +54,7 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public User getUserById(Long id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -101,16 +101,23 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public User createUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, password, full_name, email, role) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, first_name, last_name, email, role, " +
+                     "picture, birthday, phone_number, address, created_at) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword()); // Password should already be hashed
-            stmt.setString(3, user.getFullName());
-            stmt.setString(4, user.getEmail());
-            stmt.setString(5, user.getRole());
+            stmt.setString(3, user.getFirstName());
+            stmt.setString(4, user.getLastName());
+            stmt.setString(5, user.getEmail());
+            stmt.setString(6, user.getRole());
+            stmt.setString(7, user.getPicture());
+            stmt.setDate(8, user.getBirthday() != null ? new java.sql.Date(user.getBirthday().getTime()) : null);
+            stmt.setString(9, user.getPhoneNumber());
+            stmt.setString(10, user.getAddress());
 
             int affectedRows = stmt.executeUpdate();
 
@@ -138,16 +145,23 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateUser(User user) throws SQLException {
-        String sql = "UPDATE users SET username = ?, full_name = ?, email = ?, role = ? WHERE id = ?";
+        String sql = "UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, role = ?, " +
+                     "picture = ?, birthday = ?, phone_number = ?, address = ?, updated_at = CURRENT_TIMESTAMP " +
+                     "WHERE user_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getFullName());
-            stmt.setString(3, user.getEmail());
-            stmt.setString(4, user.getRole());
-            stmt.setLong(5, user.getId());
+            stmt.setString(2, user.getFirstName());
+            stmt.setString(3, user.getLastName());
+            stmt.setString(4, user.getEmail());
+            stmt.setString(5, user.getRole());
+            stmt.setString(6, user.getPicture());
+            stmt.setDate(7, user.getBirthday() != null ? new java.sql.Date(user.getBirthday().getTime()) : null);
+            stmt.setString(8, user.getPhoneNumber());
+            stmt.setString(9, user.getAddress());
+            stmt.setLong(10, user.getId());
 
             int affectedRows = stmt.executeUpdate();
 
@@ -164,7 +178,7 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public boolean updatePassword(Long userId, String newPassword) throws SQLException {
-        String sql = "UPDATE users SET password = ? WHERE id = ?";
+        String sql = "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
 
         // Create a temporary user to hash the password
         User tempUser = new User();
@@ -190,7 +204,7 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public boolean deleteUser(Long userId) throws SQLException {
-        String sql = "DELETE FROM users WHERE id = ?";
+        String sql = "DELETE FROM users WHERE user_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -212,14 +226,21 @@ public class UserService {
      */
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
-        user.setId(rs.getLong("id"));
+        user.setId(rs.getLong("user_id"));
         user.setUsername(rs.getString("username"));
         // Don't set the password using setPassword, as it would hash the already-hashed password
         // Instead, use setHashedPassword to set the already-hashed password directly
         user.setHashedPassword(rs.getString("password"));
-        user.setFullName(rs.getString("full_name"));
+        user.setFirstName(rs.getString("first_name"));
+        user.setLastName(rs.getString("last_name"));
         user.setEmail(rs.getString("email"));
         user.setRole(rs.getString("role"));
+        user.setPicture(rs.getString("picture"));
+        user.setBirthday(rs.getDate("birthday"));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        user.setAddress(rs.getString("address"));
+        user.setCreatedAt(rs.getTimestamp("created_at"));
+        user.setUpdatedAt(rs.getTimestamp("updated_at"));
         return user;
     }
 }

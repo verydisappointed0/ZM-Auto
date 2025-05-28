@@ -15,18 +15,20 @@ import java.util.List;
  * Service class for reservation-related operations.
  */
 public class ReservationService {
-    
+
     private UserService userService;
     private VehicleService vehicleService;
-    
+    private DriverService driverService;
+
     /**
      * Constructor.
      */
     public ReservationService() {
         this.userService = new UserService();
         this.vehicleService = new VehicleService();
+        this.driverService = new DriverService();
     }
-    
+
     /**
      * Get a reservation by ID.
      * 
@@ -36,22 +38,22 @@ public class ReservationService {
      */
     public Reservation getReservationById(Long id) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE id = ?";
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setLong(1, id);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToReservation(rs);
                 }
             }
         }
-        
+
         return null; // Reservation not found
     }
-    
+
     /**
      * Get all reservations.
      * 
@@ -61,19 +63,19 @@ public class ReservationService {
     public List<Reservation> getAllReservations() throws SQLException {
         String sql = "SELECT * FROM reservations ORDER BY created_at DESC";
         List<Reservation> reservations = new ArrayList<>();
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-            
+
             while (rs.next()) {
                 reservations.add(mapResultSetToReservation(rs));
             }
         }
-        
+
         return reservations;
     }
-    
+
     /**
      * Get reservations by status.
      * 
@@ -84,22 +86,22 @@ public class ReservationService {
     public List<Reservation> getReservationsByStatus(String status) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE status = ? ORDER BY created_at DESC";
         List<Reservation> reservations = new ArrayList<>();
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setString(1, status);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     reservations.add(mapResultSetToReservation(rs));
                 }
             }
         }
-        
+
         return reservations;
     }
-    
+
     /**
      * Get reservations by user.
      * 
@@ -110,22 +112,22 @@ public class ReservationService {
     public List<Reservation> getReservationsByUser(Long userId) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE user_id = ? ORDER BY created_at DESC";
         List<Reservation> reservations = new ArrayList<>();
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setLong(1, userId);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     reservations.add(mapResultSetToReservation(rs));
                 }
             }
         }
-        
+
         return reservations;
     }
-    
+
     /**
      * Get reservations by vehicle.
      * 
@@ -136,22 +138,22 @@ public class ReservationService {
     public List<Reservation> getReservationsByVehicle(Long vehicleId) throws SQLException {
         String sql = "SELECT * FROM reservations WHERE vehicle_id = ? ORDER BY created_at DESC";
         List<Reservation> reservations = new ArrayList<>();
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setLong(1, vehicleId);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     reservations.add(mapResultSetToReservation(rs));
                 }
             }
         }
-        
+
         return reservations;
     }
-    
+
     /**
      * Create a new reservation.
      * 
@@ -160,27 +162,36 @@ public class ReservationService {
      * @throws SQLException If a database error occurs
      */
     public Reservation createReservation(Reservation reservation) throws SQLException {
-        String sql = "INSERT INTO reservations (user_id, vehicle_id, start_date, end_date, status, notes, total_cost, created_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO reservations (user_id, vehicle_id, driver_needed, driver_id, start_date, end_date, status, notes, total_cost, created_at) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            
+
             stmt.setLong(1, reservation.getUser().getId());
             stmt.setLong(2, reservation.getVehicle().getId());
-            stmt.setDate(3, Date.valueOf(reservation.getStartDate()));
-            stmt.setDate(4, Date.valueOf(reservation.getEndDate()));
-            stmt.setString(5, reservation.getStatus());
-            stmt.setString(6, reservation.getNotes());
-            stmt.setDouble(7, reservation.getTotalCost());
-            stmt.setTimestamp(8, Timestamp.valueOf(reservation.getCreatedAt()));
-            
+            stmt.setBoolean(3, reservation.getDriverNeeded() != null ? reservation.getDriverNeeded() : false);
+
+            // Set driver_id if a driver is selected
+            if (reservation.getDriver() != null) {
+                stmt.setLong(4, reservation.getDriver().getDriverId());
+            } else {
+                stmt.setNull(4, java.sql.Types.BIGINT);
+            }
+
+            stmt.setDate(5, Date.valueOf(reservation.getStartDate()));
+            stmt.setDate(6, Date.valueOf(reservation.getEndDate()));
+            stmt.setString(7, reservation.getStatus());
+            stmt.setString(8, reservation.getNotes());
+            stmt.setDouble(9, reservation.getTotalCost());
+            stmt.setTimestamp(10, Timestamp.valueOf(reservation.getCreatedAt()));
+
             int affectedRows = stmt.executeUpdate();
-            
+
             if (affectedRows == 0) {
                 throw new SQLException("Creating reservation failed, no rows affected.");
             }
-            
+
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     reservation.setId(generatedKeys.getLong(1));
@@ -189,10 +200,10 @@ public class ReservationService {
                 }
             }
         }
-        
+
         return reservation;
     }
-    
+
     /**
      * Update an existing reservation.
      * 
@@ -201,28 +212,37 @@ public class ReservationService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateReservation(Reservation reservation) throws SQLException {
-        String sql = "UPDATE reservations SET user_id = ?, vehicle_id = ?, start_date = ?, end_date = ?, " +
-                     "status = ?, notes = ?, total_cost = ?, updated_at = ? WHERE id = ?";
-        
+        String sql = "UPDATE reservations SET user_id = ?, vehicle_id = ?, driver_needed = ?, driver_id = ?, " +
+                     "start_date = ?, end_date = ?, status = ?, notes = ?, total_cost = ?, updated_at = ? WHERE id = ?";
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setLong(1, reservation.getUser().getId());
             stmt.setLong(2, reservation.getVehicle().getId());
-            stmt.setDate(3, Date.valueOf(reservation.getStartDate()));
-            stmt.setDate(4, Date.valueOf(reservation.getEndDate()));
-            stmt.setString(5, reservation.getStatus());
-            stmt.setString(6, reservation.getNotes());
-            stmt.setDouble(7, reservation.getTotalCost());
-            stmt.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-            stmt.setLong(9, reservation.getId());
-            
+            stmt.setBoolean(3, reservation.getDriverNeeded() != null ? reservation.getDriverNeeded() : false);
+
+            // Set driver_id if a driver is selected
+            if (reservation.getDriver() != null) {
+                stmt.setLong(4, reservation.getDriver().getDriverId());
+            } else {
+                stmt.setNull(4, java.sql.Types.BIGINT);
+            }
+
+            stmt.setDate(5, Date.valueOf(reservation.getStartDate()));
+            stmt.setDate(6, Date.valueOf(reservation.getEndDate()));
+            stmt.setString(7, reservation.getStatus());
+            stmt.setString(8, reservation.getNotes());
+            stmt.setDouble(9, reservation.getTotalCost());
+            stmt.setTimestamp(10, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setLong(11, reservation.getId());
+
             int affectedRows = stmt.executeUpdate();
-            
+
             return affectedRows > 0;
         }
     }
-    
+
     /**
      * Update a reservation's status.
      * 
@@ -234,21 +254,21 @@ public class ReservationService {
      */
     public boolean updateReservationStatus(Long reservationId, String status, String notes) throws SQLException {
         String sql = "UPDATE reservations SET status = ?, notes = ?, updated_at = ? WHERE id = ?";
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setString(1, status);
             stmt.setString(2, notes);
             stmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setLong(4, reservationId);
-            
+
             int affectedRows = stmt.executeUpdate();
-            
+
             return affectedRows > 0;
         }
     }
-    
+
     /**
      * Approve a reservation.
      * 
@@ -260,7 +280,7 @@ public class ReservationService {
     public boolean approveReservation(Long reservationId, String notes) throws SQLException {
         return updateReservationStatus(reservationId, "APPROVED", notes);
     }
-    
+
     /**
      * Reject a reservation.
      * 
@@ -272,7 +292,7 @@ public class ReservationService {
     public boolean rejectReservation(Long reservationId, String notes) throws SQLException {
         return updateReservationStatus(reservationId, "REJECTED", notes);
     }
-    
+
     /**
      * Delete a reservation.
      * 
@@ -282,18 +302,18 @@ public class ReservationService {
      */
     public boolean deleteReservation(Long reservationId) throws SQLException {
         String sql = "DELETE FROM reservations WHERE id = ?";
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setLong(1, reservationId);
-            
+
             int affectedRows = stmt.executeUpdate();
-            
+
             return affectedRows > 0;
         }
     }
-    
+
     /**
      * Map a ResultSet to a Reservation object.
      * 
@@ -304,17 +324,27 @@ public class ReservationService {
     private Reservation mapResultSetToReservation(ResultSet rs) throws SQLException {
         Reservation reservation = new Reservation();
         reservation.setId(rs.getLong("id"));
-        
+
         // Get the user
         Long userId = rs.getLong("user_id");
         User user = userService.getUserById(userId);
         reservation.setUser(user);
-        
+
         // Get the vehicle
         Long vehicleId = rs.getLong("vehicle_id");
         Vehicle vehicle = vehicleService.getVehicleById(vehicleId);
         reservation.setVehicle(vehicle);
-        
+
+        // Get driver information
+        reservation.setDriverNeeded(rs.getBoolean("driver_needed"));
+
+        // Get the driver if one is assigned
+        Long driverId = rs.getLong("driver_id");
+        if (!rs.wasNull()) {
+            com.adminpanel.zmauto.model.Driver driver = driverService.getDriverById(driverId);
+            reservation.setDriver(driver);
+        }
+
         // Set other fields
         reservation.setStartDate(rs.getDate("start_date").toLocalDate());
         reservation.setEndDate(rs.getDate("end_date").toLocalDate());
@@ -322,12 +352,12 @@ public class ReservationService {
         reservation.setNotes(rs.getString("notes"));
         reservation.setTotalCost(rs.getDouble("total_cost"));
         reservation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        
+
         Timestamp updatedAt = rs.getTimestamp("updated_at");
         if (updatedAt != null) {
             reservation.setUpdatedAt(updatedAt.toLocalDateTime());
         }
-        
+
         return reservation;
     }
 }

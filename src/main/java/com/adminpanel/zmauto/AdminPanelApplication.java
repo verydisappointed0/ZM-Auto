@@ -1,5 +1,7 @@
 package com.adminpanel.zmauto;
 
+import com.adminpanel.zmauto.controller.DashboardController;
+import com.adminpanel.zmauto.model.User;
 import com.adminpanel.zmauto.util.DatabaseInitializer;
 import com.adminpanel.zmauto.util.DatabaseUtil;
 import javafx.application.Application;
@@ -14,12 +16,24 @@ public class AdminPanelApplication extends Application {
     public void start(Stage stage) throws IOException {
         // Initialize the database
         DatabaseInitializer.initialize();
-        
-        // Load the login view
-        FXMLLoader fxmlLoader = new FXMLLoader(AdminPanelApplication.class.getResource("login-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
-        stage.setTitle("ZM-Auto Admin Panel - Login");
+
+        // Load the dashboard view directly (no login required)
+        FXMLLoader fxmlLoader = new FXMLLoader(AdminPanelApplication.class.getResource("dashboard-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1024, 768);
+
+        // Get the controller and set a default user
+        DashboardController dashboardController = fxmlLoader.getController();
+        User defaultUser = new User();
+        defaultUser.setUsername("admin");
+        defaultUser.setFirstName("System");
+        defaultUser.setLastName("Administrator");
+        defaultUser.setEmail("admin@zmauto.com");
+        defaultUser.setRole("ADMIN");
+        dashboardController.setUser(defaultUser);
+
+        stage.setTitle("ZM-Auto Admin Panel - Dashboard");
         stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 

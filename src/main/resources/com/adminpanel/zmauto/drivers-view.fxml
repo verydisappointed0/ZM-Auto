@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@css/styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.adminpanel.zmauto.controller.ReservationsController">
+<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@css/styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.adminpanel.zmauto.controller.DriversController">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
-            <Label styleClass="page-title" text="Reservations">
+            <Label styleClass="page-title" text="Drivers">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
@@ -40,7 +40,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="searchField" prefHeight="30.0" prefWidth="200.0" promptText="Search by user or vehicle" />
+                  <TextField fx:id="searchField" prefHeight="30.0" prefWidth="200.0" promptText="Search by name, phone, or email" />
                   <Button fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonClick" styleClass="form-button" text="Search" />
                   <Button fx:id="clearButton" mnemonicParsing="false" onAction="#onClearButtonClick" styleClass="form-button" text="Clear" />
                </children>
@@ -55,16 +55,15 @@
       </VBox>
    </top>
    <center>
-      <TableView fx:id="reservationsTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <TableView fx:id="driversTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
           <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
-          <TableColumn fx:id="userColumn" prefWidth="120.0" text="User" />
-            <TableColumn fx:id="vehicleColumn" prefWidth="120.0" text="Vehicle" />
-            <TableColumn fx:id="startDateColumn" prefWidth="100.0" text="Start Date" />
-            <TableColumn fx:id="endDateColumn" prefWidth="100.0" text="End Date" />
+          <TableColumn fx:id="firstNameColumn" prefWidth="100.0" text="First Name" />
+            <TableColumn fx:id="lastNameColumn" prefWidth="100.0" text="Last Name" />
+            <TableColumn fx:id="phoneNumberColumn" prefWidth="120.0" text="Phone Number" />
+            <TableColumn fx:id="emailColumn" prefWidth="150.0" text="Email" />
             <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Status" />
-            <TableColumn fx:id="totalCostColumn" prefWidth="100.0" text="Total Cost" />
-            <TableColumn fx:id="createdAtColumn" prefWidth="150.0" text="Created At" />
+            <TableColumn fx:id="ratingColumn" prefWidth="80.0" text="Rating" />
         </columns>
          <BorderPane.margin>
             <Insets bottom="10.0" left="20.0" right="20.0" />
@@ -74,10 +73,9 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="createButton" mnemonicParsing="false" onAction="#onCreateButtonClick" styleClass="form-button" text="Create Reservation" />
-            <Button fx:id="viewDetailsButton" mnemonicParsing="false" onAction="#onViewDetailsButtonClick" styleClass="form-button" text="View Details" />
-            <Button fx:id="approveButton" mnemonicParsing="false" onAction="#onApproveButtonClick" styleClass="form-button" text="Approve" />
-            <Button fx:id="rejectButton" mnemonicParsing="false" onAction="#onRejectButtonClick" styleClass="form-button-cancel" text="Reject" />
+            <Button fx:id="addButton" mnemonicParsing="false" onAction="#onAddButtonClick" styleClass="form-button" text="Add Driver" />
+            <Button fx:id="editButton" mnemonicParsing="false" onAction="#onEditButtonClick" styleClass="form-button" text="Edit" />
+            <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButtonClick" styleClass="form-button-cancel" text="Delete" />
          </children>
          <BorderPane.margin>
             <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
