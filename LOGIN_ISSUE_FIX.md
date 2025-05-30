@@ -8,7 +8,7 @@ The application was showing "Invalid username or password" error when trying to 
 
 The issue was caused by a double-hashing problem in the authentication process:
 
-1. When a user is loaded from the database, the `mapResultSetToUser` method in `UserService` was using `user.setPassword(rs.getString("password"))` to set the password.
+1. When a users is loaded from the database, the `mapResultSetToUser` method in `UserService` was using `users.setPassword(rs.getString("password"))` to set the password.
 2. The `setPassword` method in the `User` class always hashes the input password.
 3. This meant that the already-hashed password from the database was being hashed again, resulting in a double-hashed password stored in the User object.
 4. When verifying a password during login, the `verifyPassword` method hashes the input password once and compares it to the stored password, which was now double-hashed, causing the verification to fail.
@@ -25,9 +25,9 @@ We implemented the following changes to fix the login issue:
 
 2. Updated the `mapResultSetToUser` method in `UserService` to use this new method instead of `setPassword`:
 
-    user.setHashedPassword(rs.getString("password"));
+    users.setHashedPassword(rs.getString("password"));
 
-This ensures that when a user is loaded from the database, the already-hashed password is set directly without being hashed again, allowing the `verifyPassword` method to work correctly during authentication.
+This ensures that when a users is loaded from the database, the already-hashed password is set directly without being hashed again, allowing the `verifyPassword` method to work correctly during authentication.
 
 ## How to Login
 

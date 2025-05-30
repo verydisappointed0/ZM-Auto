@@ -9,7 +9,7 @@ A JavaFX-based admin panel for managing a vehicle rental system. This applicatio
 - **Vehicle Management**: Add, edit, and delete vehicles with details like make, model, year, etc.
 - **Reservation Management**: View, approve, and reject reservation requests
 - **Database Integration**: H2 embedded database for persistent storage of all data
-- **Responsive UI**: Modern and responsive user interface built with JavaFX and CSS
+- **Responsive UI**: Modern and responsive users interface built with JavaFX and CSS
 
 ## Technologies Used
 

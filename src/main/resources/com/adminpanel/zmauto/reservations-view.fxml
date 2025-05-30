@@ -40,7 +40,7 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="searchField" prefHeight="30.0" prefWidth="200.0" promptText="Search by user or vehicle" />
+                  <TextField fx:id="searchField" prefHeight="30.0" prefWidth="200.0" promptText="Search by users or vehicle" />
                   <Button fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonClick" styleClass="form-button" text="Search" />
                   <Button fx:id="clearButton" mnemonicParsing="false" onAction="#onClearButtonClick" styleClass="form-button" text="Clear" />
                </children>

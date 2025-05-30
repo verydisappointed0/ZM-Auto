@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.Date;
 
 /**
- * Entity class representing a user in the system.
+ * Entity class representing a users in the system.
  */
 @Entity
 @Table(name = "users")
@@ -117,7 +117,7 @@ public class User {
 
     /**
      * Set an already-hashed password directly.
-     * This method is used when loading a user from the database to avoid double-hashing.
+     * This method is used when loading a users from the database to avoid double-hashing.
      * 
      * @param hashedPassword The already-hashed password
      */

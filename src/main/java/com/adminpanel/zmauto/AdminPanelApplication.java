@@ -21,7 +21,7 @@ public class AdminPanelApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(AdminPanelApplication.class.getResource("dashboard-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1024, 768);
 
-        // Get the controller and set a default user
+        // Get the controller and set a default users
         DashboardController dashboardController = fxmlLoader.getController();
         User defaultUser = new User();
         defaultUser.setUsername("admin");

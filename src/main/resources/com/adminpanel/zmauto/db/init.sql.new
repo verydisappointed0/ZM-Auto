@@ -50,8 +50,21 @@ CREATE TABLE IF NOT EXISTS car (
     updated_at TIMESTAMP
 );
 
-
-
+-- Create locations table
+CREATE TABLE IF NOT EXISTS locations (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    address VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    zip_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    email VARCHAR(100),
+    manager_name VARCHAR(100),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    opening_hours VARCHAR(255)
+);
 
 -- Create driver table
 CREATE TABLE IF NOT EXISTS driver (
@@ -72,7 +85,7 @@ CREATE TABLE IF NOT EXISTS driver (
     rating DECIMAL(3, 2),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
-    FOREIGN KEY (car_id) REFERENCES car (car_id)
+    FOREIGN KEY (car_id) REFERENCES car(car_id)
 );
 
 -- Create reservations table
@@ -90,8 +103,8 @@ CREATE TABLE IF NOT EXISTS reservations (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (vehicle_id) REFERENCES car (car_id),
-    FOREIGN KEY (driver_id) REFERENCES driver (driver_id)
+    FOREIGN KEY (vehicle_id) REFERENCES car(car_id),
+    FOREIGN KEY (driver_id) REFERENCES driver(driver_id)
 );
 
 -- Create payments table
@@ -107,6 +120,79 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (reservation_id) REFERENCES reservations(id)
 );
 
+-- Create maintenance table
+CREATE TABLE IF NOT EXISTS maintenance (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    vehicle_id BIGINT NOT NULL,
+    maintenance_type VARCHAR(50) NOT NULL,
+    description TEXT NOT NULL,
+    maintenance_date DATE NOT NULL,
+    next_maintenance_date DATE,
+    cost DECIMAL(10, 2) NOT NULL,
+    performed_by VARCHAR(100),
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (vehicle_id) REFERENCES car(car_id)
+);
+
+-- Create insurance table
+CREATE TABLE IF NOT EXISTS insurance (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    vehicle_id BIGINT NOT NULL,
+    policy_number VARCHAR(100) NOT NULL,
+    provider VARCHAR(100) NOT NULL,
+    coverage_type VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    expiry_date DATE NOT NULL,
+    premium DECIMAL(10, 2) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (vehicle_id) REFERENCES car(car_id)
+);
+
+-- Create customers table
+CREATE TABLE IF NOT EXISTS customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    date_of_birth DATE,
+    phone_number VARCHAR(20) NOT NULL,
+    address VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    zip_code VARCHAR(20),
+    country VARCHAR(100),
+    driver_license_number VARCHAR(50),
+    driver_license_expiry DATE,
+    emergency_contact_name VARCHAR(100),
+    emergency_contact_phone VARCHAR(20),
+    customer_type VARCHAR(20),
+    company_name VARCHAR(100),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Create reviews table
+CREATE TABLE IF NOT EXISTS reviews (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    vehicle_id BIGINT,
+    reservation_id BIGINT,
+    rating INT NOT NULL,
+    comment TEXT NOT NULL,
+    review_type VARCHAR(20) NOT NULL,
+    approved BOOLEAN NOT NULL DEFAULT FALSE,
+    admin_response TEXT,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (vehicle_id) REFERENCES car(car_id),
+    FOREIGN KEY (reservation_id) REFERENCES reservations(id)
+);
 
 -- Insert default admin users (password: admin123) and a regular users if they don't exist
 INSERT INTO users (username, password, first_name, last_name, email, role, created_at)
@@ -119,9 +205,18 @@ SELECT 'user1', 'JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=', 'John', 'Smith',
 FROM dual
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'user1');
 
+-- Insert sample locations if they don't exist
+INSERT INTO locations (name, address, city, state, zip_code, country, phone_number, email, manager_name, active, opening_hours)
+SELECT 'Downtown Branch', '123 Main St', 'New York', 'NY', '10001', 'USA', '212-555-1234', 'downtown@zmauto.com', 'Jane Wilson', TRUE, 'Mon-Fri: 8AM-6PM, Sat: 9AM-4PM, Sun: Closed'
+FROM dual
+WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = 'Downtown Branch');
 
+INSERT INTO locations (name, address, city, state, zip_code, country, phone_number, email, manager_name, active, opening_hours)
+SELECT 'Airport Location', '789 Airport Rd', 'Los Angeles', 'CA', '90045', 'USA', '310-555-6789', 'airport@zmauto.com', 'Robert Johnson', TRUE, 'Mon-Sun: 6AM-10PM'
+FROM dual
+WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = 'Airport Location');
 
--- Insert sample vehicles if they don't exist
+-- Insert sample car if they don't exist
 INSERT INTO car (brand, model, model_year, license_plate, colour, rental_status, description, rental_price_per_day, created_at)
 SELECT 'Toyota', 'Camry', 2022, 'ABC123', 'Black', 'AVAILABLE', 'Comfortable sedan with good fuel economy', 50.00, CURRENT_TIMESTAMP
 FROM dual
@@ -148,12 +243,53 @@ FROM dual
 WHERE NOT EXISTS (SELECT 1 FROM car WHERE license_plate = 'MNO345');
 
 -- Insert sample insurance records if they don't exist
+INSERT INTO insurance (vehicle_id, policy_number, provider, coverage_type, start_date, expiry_date, premium, notes, created_at)
+SELECT 
+    (SELECT car_id FROM car WHERE license_plate = 'ABC123'),
+    'POL-12345', 'SafeDrive Insurance', 'COMPREHENSIVE', '2023-01-01', '2023-12-31', 1200.00, 'Full coverage policy', CURRENT_TIMESTAMP
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM insurance 
+    WHERE vehicle_id = (SELECT car_id FROM car WHERE license_plate = 'ABC123')
+    AND policy_number = 'POL-12345'
+);
 
+INSERT INTO insurance (vehicle_id, policy_number, provider, coverage_type, start_date, expiry_date, premium, notes, created_at)
+SELECT 
+    (SELECT car_id FROM car WHERE license_plate = 'DEF456'),
+    'POL-67890', 'SafeDrive Insurance', 'BASIC', '2023-01-01', '2023-12-31', 800.00, 'Basic coverage policy', CURRENT_TIMESTAMP
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM insurance 
+    WHERE vehicle_id = (SELECT car_id FROM car WHERE license_plate = 'DEF456')
+    AND policy_number = 'POL-67890'
+);
 
+-- Insert sample maintenance records if they don't exist
+INSERT INTO maintenance (vehicle_id, maintenance_type, description, maintenance_date, next_maintenance_date, cost, performed_by, status, created_at)
+SELECT 
+    (SELECT car_id FROM car WHERE license_plate = 'MNO345'),
+    'REPAIR', 'Brake system replacement', '2023-05-15', '2023-11-15', 450.00, 'Mike''s Auto Shop', 'IN_PROGRESS', CURRENT_TIMESTAMP
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM maintenance 
+    WHERE vehicle_id = (SELECT car_id FROM car WHERE license_plate = 'MNO345')
+    AND maintenance_type = 'REPAIR'
+    AND maintenance_date = '2023-05-15'
+);
 
+-- Insert sample customer records if they don't exist
+INSERT INTO customers (user_id, first_name, last_name, date_of_birth, phone_number, address, city, state, zip_code, country, driver_license_number, driver_license_expiry, emergency_contact_name, emergency_contact_phone, customer_type, company_name, created_at)
+SELECT 
+    (SELECT user_id FROM users WHERE username = 'user1'),
+    'John', 'Smith', '1985-06-15', '555-123-4567', '456 Oak St', 'Chicago', 'IL', '60601', 'USA', 'DL12345678', '2025-06-15', 'Mary Smith', '555-987-6543', 'INDIVIDUAL', NULL, CURRENT_TIMESTAMP
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM customers 
+    WHERE user_id = (SELECT user_id FROM users WHERE username = 'user1')
+);
 
-
-
+-- Insert sample driver if they don't exist
 INSERT INTO driver (picture, first_name, last_name, birthday, phone_number, address, email, daily_wage, hourly_wage, availability, status, years_of_experience, car_id, rating, created_at)
 SELECT 'https://randomuser.me/api/portraits/men/1.jpg', 'John', 'Doe', '1985-05-15', '555-123-4567', '123 Main St, New York, NY', 'john.doe@example.com', 120.00, 15.00, TRUE, 'ACTIVE', 5, (SELECT car_id FROM car WHERE license_plate = 'ABC123'), 4.8, CURRENT_TIMESTAMP
 FROM dual
@@ -237,5 +373,17 @@ WHERE NOT EXISTS (
     AND transaction_id = 'TXN-12345'
 );
 
-
-
+-- Insert sample reviews if they don't exist
+INSERT INTO reviews (user_id, vehicle_id, reservation_id, rating, comment, review_type, approved, created_at)
+SELECT 
+    (SELECT user_id FROM users WHERE username = 'admin'),
+    (SELECT car_id FROM car WHERE license_plate = 'ABC123'),
+    (SELECT id FROM reservations WHERE user_id = (SELECT user_id FROM users WHERE username = 'admin') AND start_date = '2023-06-01'),
+    5, 'Great car, very comfortable and fuel-efficient!', 'VEHICLE', TRUE, '2023-06-06 09:15:00'
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1 FROM reviews 
+    WHERE user_id = (SELECT user_id FROM users WHERE username = 'admin')
+    AND vehicle_id = (SELECT car_id FROM car WHERE license_plate = 'ABC123')
+    AND reservation_id = (SELECT id FROM reservations WHERE user_id = (SELECT user_id FROM users WHERE username = 'admin') AND start_date = '2023-06-01')
+);

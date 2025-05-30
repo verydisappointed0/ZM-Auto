@@ -39,7 +39,7 @@ public class LoginController {
      */
     @FXML
     public void initialize() {
-        // Initialize the user service
+        // Initialize the users service
         userService = new UserService();
         
         // Hide the error label initially
@@ -92,7 +92,7 @@ public class LoginController {
     /**
      * Navigate to the dashboard view.
      * 
-     * @param user The authenticated user
+     * @param user The authenticated users
      */
     private void navigateToDashboard(User user) {
         try {
@@ -100,7 +100,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/adminpanel/zmauto/dashboard-view.fxml"));
             Parent dashboardRoot = loader.load();
             
-            // Get the controller and pass the authenticated user
+            // Get the controller and pass the authenticated users
             DashboardController dashboardController = loader.getController();
             dashboardController.setUser(user);
             

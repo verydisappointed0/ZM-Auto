@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller for the drivers view.
+ * Controller for the driver view.
  */
 public class DriversController {
 
@@ -149,7 +149,7 @@ public class DriversController {
         driversTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> updateButtonStates());
 
-        // Load drivers
+        // Load driver
         loadDrivers();
     }
 
@@ -221,7 +221,7 @@ public class DriversController {
     }
 
     /**
-     * Load drivers based on the current filter and search criteria.
+     * Load driver based on the current filter and search criteria.
      */
     private void loadDrivers() {
         try {
@@ -252,7 +252,7 @@ public class DriversController {
             updateButtonStates();
 
         } catch (SQLException e) {
-            showError("Error loading drivers: " + e.getMessage());
+            showError("Error loading driver: " + e.getMessage());
             e.printStackTrace();
         }
     }

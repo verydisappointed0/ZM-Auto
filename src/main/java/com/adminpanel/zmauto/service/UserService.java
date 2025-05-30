@@ -11,20 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service class for user-related operations.
+ * Service class for users-related operations.
  */
 public class UserService {
 
     /**
-     * Authenticate a user with the given username and password.
+     * Authenticate a users with the given username and password.
      * 
      * @param username The username
      * @param password The password
-     * @return The authenticated user, or null if authentication fails
+     * @return The authenticated users, or null if authentication fails
      * @throws SQLException If a database error occurs
      */
     public User authenticate(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM user WHERE username = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -47,14 +47,14 @@ public class UserService {
     }
 
     /**
-     * Get a user by ID.
+     * Get a users by ID.
      * 
-     * @param id The user ID
-     * @return The user, or null if not found
+     * @param id The users ID
+     * @return The users, or null if not found
      * @throws SQLException If a database error occurs
      */
     public User getUserById(Long id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE user_id = ?";
+        String sql = "SELECT * FROM user WHERE user_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -78,7 +78,7 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public List<User> getAllUsers() throws SQLException {
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM user";
         List<User> users = new ArrayList<>();
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -94,14 +94,14 @@ public class UserService {
     }
 
     /**
-     * Create a new user.
+     * Create a new users.
      * 
-     * @param user The user to create
-     * @return The created user with ID
+     * @param user The users to create
+     * @return The created users with ID
      * @throws SQLException If a database error occurs
      */
     public User createUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, password, first_name, last_name, email, role, " +
+        String sql = "INSERT INTO user (username, password, first_name, last_name, email, " +
                      "picture, birthday, phone_number, address, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
@@ -122,14 +122,14 @@ public class UserService {
             int affectedRows = stmt.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Creating user failed, no rows affected.");
+                throw new SQLException("Creating users failed, no rows affected.");
             }
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     user.setId(generatedKeys.getLong(1));
                 } else {
-                    throw new SQLException("Creating user failed, no ID obtained.");
+                    throw new SQLException("Creating users failed, no ID obtained.");
                 }
             }
         }
@@ -138,14 +138,14 @@ public class UserService {
     }
 
     /**
-     * Update an existing user.
+     * Update an existing users.
      * 
-     * @param user The user to update
+     * @param user The users to update
      * @return true if the update was successful, false otherwise
      * @throws SQLException If a database error occurs
      */
     public boolean updateUser(User user) throws SQLException {
-        String sql = "UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, role = ?, " +
+        String sql = "UPDATE user SET username = ?, first_name = ?, last_name = ?, email = ?, " +
                      "picture = ?, birthday = ?, phone_number = ?, address = ?, updated_at = CURRENT_TIMESTAMP " +
                      "WHERE user_id = ?";
 
@@ -170,17 +170,17 @@ public class UserService {
     }
 
     /**
-     * Update a user's password.
+     * Update a users's password.
      * 
-     * @param userId The user ID
+     * @param userId The users ID
      * @param newPassword The new password (will be hashed)
      * @return true if the update was successful, false otherwise
      * @throws SQLException If a database error occurs
      */
     public boolean updatePassword(Long userId, String newPassword) throws SQLException {
-        String sql = "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
+        String sql = "UPDATE user SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
 
-        // Create a temporary user to hash the password
+        // Create a temporary users to hash the password
         User tempUser = new User();
         tempUser.setPassword(newPassword);
 
@@ -197,14 +197,14 @@ public class UserService {
     }
 
     /**
-     * Delete a user.
+     * Delete a users.
      * 
-     * @param userId The user ID
+     * @param userId The users ID
      * @return true if the deletion was successful, false otherwise
      * @throws SQLException If a database error occurs
      */
     public boolean deleteUser(Long userId) throws SQLException {
-        String sql = "DELETE FROM users WHERE user_id = ?";
+        String sql = "DELETE FROM user WHERE user_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

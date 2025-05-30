@@ -68,14 +68,14 @@ public class DashboardController {
     }
 
     /**
-     * Set the current user and update the UI accordingly.
+     * Set the current users and update the UI accordingly.
      * 
-     * @param user The authenticated user
+     * @param user The authenticated users
      */
     public void setUser(User user) {
         this.currentUser = user;
 
-        // Update welcome label with user's name
+        // Update welcome label with users's name
         if (welcomeLabel != null && user != null) {
             welcomeLabel.setText("Welcome, " + user.getFirstName() + " " + user.getLastName());
         }
@@ -105,7 +105,7 @@ public class DashboardController {
     }
 
     /**
-     * Handle drivers button click.
+     * Handle driver button click.
      * 
      * @param event The action event
      */
@@ -134,7 +134,7 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/adminpanel/zmauto/users-view.fxml"));
             Parent usersView = loader.load();
 
-            // Get the controller and pass the current user
+            // Get the controller and pass the current users
             UsersController usersController = loader.getController();
             usersController.setDashboardController(this);
 
@@ -160,7 +160,7 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/adminpanel/zmauto/vehicles-view.fxml"));
             Parent vehiclesView = loader.load();
 
-            // Get the controller and pass the current user
+            // Get the controller and pass the current users
             VehiclesController vehiclesController = loader.getController();
             vehiclesController.setDashboardController(this);
 
@@ -186,7 +186,7 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/adminpanel/zmauto/reservations-view.fxml"));
             Parent reservationsView = loader.load();
 
-            // Get the controller and pass the current user
+            // Get the controller and pass the current users
             ReservationsController reservationsController = loader.getController();
             reservationsController.setDashboardController(this);
 
@@ -204,19 +204,19 @@ public class DashboardController {
     }
 
     /**
-     * Show the drivers view.
+     * Show the driver view.
      */
     private void showDrivers() {
         try {
-            // Load the drivers view
+            // Load the driver view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/adminpanel/zmauto/drivers-view.fxml"));
             Parent driversView = loader.load();
 
-            // Get the controller and pass the current user
+            // Get the controller and pass the current users
             DriversController driversController = loader.getController();
             driversController.setDashboardController(this);
 
-            // Set the drivers view in the content area
+            // Set the driver view in the content area
             contentArea.getChildren().clear();
             contentArea.getChildren().add(driversView);
 
@@ -224,7 +224,7 @@ public class DashboardController {
             setActiveButton(driversButton);
 
         } catch (IOException e) {
-            showError("Error loading drivers view: " + e.getMessage());
+            showError("Error loading driver view: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -259,18 +259,18 @@ public class DashboardController {
     }
 
     /**
-     * Get the current user.
+     * Get the current users.
      * 
-     * @return The current user
+     * @return The current users
      */
     public User getCurrentUser() {
         return currentUser;
     }
 
     /**
-     * Get the user service.
+     * Get the users service.
      * 
-     * @return The user service
+     * @return The users service
      */
     public UserService getUserService() {
         return userService;

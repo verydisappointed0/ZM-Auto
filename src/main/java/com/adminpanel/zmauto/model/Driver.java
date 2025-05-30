@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  * Entity class representing a driver in the system.
  */
 @Entity
-@Table(name = "drivers")
+@Table(name = "driver")
 public class Driver {
     
     @Id

@@ -103,10 +103,10 @@ public class ReservationService {
     }
 
     /**
-     * Get reservations by user.
+     * Get reservations by users.
      * 
-     * @param userId The user ID
-     * @return A list of reservations for the specified user
+     * @param userId The users ID
+     * @return A list of reservations for the specified users
      * @throws SQLException If a database error occurs
      */
     public List<Reservation> getReservationsByUser(Long userId) throws SQLException {
@@ -136,7 +136,7 @@ public class ReservationService {
      * @throws SQLException If a database error occurs
      */
     public List<Reservation> getReservationsByVehicle(Long vehicleId) throws SQLException {
-        String sql = "SELECT * FROM reservations WHERE vehicle_id = ? ORDER BY created_at DESC";
+        String sql = "SELECT * FROM reservations WHERE car_id = ? ORDER BY created_at DESC";
         List<Reservation> reservations = new ArrayList<>();
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -162,7 +162,7 @@ public class ReservationService {
      * @throws SQLException If a database error occurs
      */
     public Reservation createReservation(Reservation reservation) throws SQLException {
-        String sql = "INSERT INTO reservations (user_id, vehicle_id, driver_needed, driver_id, start_date, end_date, status, notes, total_cost, created_at) " +
+        String sql = "INSERT INTO reservations (user_id, car_id, driver_id, start_date, end_date, status, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -212,8 +212,8 @@ public class ReservationService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateReservation(Reservation reservation) throws SQLException {
-        String sql = "UPDATE reservations SET user_id = ?, vehicle_id = ?, driver_needed = ?, driver_id = ?, " +
-                     "start_date = ?, end_date = ?, status = ?, notes = ?, total_cost = ?, updated_at = ? WHERE id = ?";
+        String sql = "UPDATE reservations SET user_id = ?, car_id = ?, driver_id = ?, " +
+                     "start_date = ?, end_date = ?, status = ?, updated_at = ? WHERE id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -253,7 +253,7 @@ public class ReservationService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateReservationStatus(Long reservationId, String status, String notes) throws SQLException {
-        String sql = "UPDATE reservations SET status = ?, notes = ?, updated_at = ? WHERE id = ?";
+        String sql = "UPDATE reservations SET status = ?, updated_at = ? WHERE id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -325,7 +325,7 @@ public class ReservationService {
         Reservation reservation = new Reservation();
         reservation.setId(rs.getLong("id"));
 
-        // Get the user
+        // Get the users
         Long userId = rs.getLong("user_id");
         User user = userService.getUserById(userId);
         reservation.setUser(user);

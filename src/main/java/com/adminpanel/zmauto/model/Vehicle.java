@@ -7,7 +7,7 @@ import java.util.Date;
  * Entity class representing a vehicle in the system.
  */
 @Entity
-@Table(name = "vehicles")
+@Table(name = "car")
 public class Vehicle {
 
     @Id

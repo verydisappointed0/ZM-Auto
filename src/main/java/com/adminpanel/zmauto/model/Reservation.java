@@ -207,7 +207,7 @@ public class Reservation {
     public String toString() {
         return "Reservation{" +
                 "id=" + id +
-                ", user=" + (user != null ? user.getUsername() : "null") +
+                ", users=" + (user != null ? user.getUsername() : "null") +
                 ", vehicle=" + (vehicle != null ? vehicle.getLicensePlate() : "null") +
                 ", driverNeeded=" + driverNeeded +
                 ", driver=" + (driver != null ? driver.getFirstName() + " " + driver.getLastName() : "null") +

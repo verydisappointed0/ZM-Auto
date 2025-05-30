@@ -22,7 +22,7 @@ public class DriverService {
      * @throws SQLException If a database error occurs
      */
     public Driver getDriverById(Long id) throws SQLException {
-        String sql = "SELECT * FROM drivers WHERE driver_id = ?";
+        String sql = "SELECT * FROM driver WHERE driver_id = ?";
         
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -40,13 +40,13 @@ public class DriverService {
     }
     
     /**
-     * Get all drivers.
+     * Get all driver.
      * 
-     * @return A list of all drivers
+     * @return A list of all driver
      * @throws SQLException If a database error occurs
      */
     public List<Driver> getAllDrivers() throws SQLException {
-        String sql = "SELECT * FROM drivers";
+        String sql = "SELECT * FROM driver";
         List<Driver> drivers = new ArrayList<>();
         
         try (Connection conn = DatabaseUtil.getConnection();
@@ -62,13 +62,13 @@ public class DriverService {
     }
     
     /**
-     * Get all available drivers.
+     * Get all available driver.
      * 
-     * @return A list of all available drivers
+     * @return A list of all available driver
      * @throws SQLException If a database error occurs
      */
     public List<Driver> getAvailableDrivers() throws SQLException {
-        String sql = "SELECT * FROM drivers WHERE availability = TRUE";
+        String sql = "SELECT * FROM driver WHERE availability = TRUE";
         List<Driver> drivers = new ArrayList<>();
         
         try (Connection conn = DatabaseUtil.getConnection();
@@ -91,7 +91,7 @@ public class DriverService {
      * @throws SQLException If a database error occurs
      */
     public Driver createDriver(Driver driver) throws SQLException {
-        String sql = "INSERT INTO drivers (picture, first_name, last_name, birthday, phone_number, " +
+        String sql = "INSERT INTO driver (picture, first_name, last_name, birthday, phone_number, " +
                      "address, email, daily_wage, hourly_wage, availability, status, " +
                      "years_of_experience, car_id, rating, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -141,7 +141,7 @@ public class DriverService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateDriver(Driver driver) throws SQLException {
-        String sql = "UPDATE drivers SET picture = ?, first_name = ?, last_name = ?, birthday = ?, " +
+        String sql = "UPDATE driver SET picture = ?, first_name = ?, last_name = ?, birthday = ?, " +
                      "phone_number = ?, address = ?, email = ?, daily_wage = ?, hourly_wage = ?, " +
                      "availability = ?, status = ?, years_of_experience = ?, car_id = ?, " +
                      "rating = ?, updated_at = ? WHERE driver_id = ?";
@@ -183,7 +183,7 @@ public class DriverService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateDriverStatus(Long driverId, String status) throws SQLException {
-        String sql = "UPDATE drivers SET status = ?, updated_at = ? WHERE driver_id = ?";
+        String sql = "UPDATE driver SET status = ?, updated_at = ? WHERE driver_id = ?";
         
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -206,7 +206,7 @@ public class DriverService {
      * @throws SQLException If a database error occurs
      */
     public boolean deleteDriver(Long driverId) throws SQLException {
-        String sql = "DELETE FROM drivers WHERE driver_id = ?";
+        String sql = "DELETE FROM driver WHERE driver_id = ?";
         
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

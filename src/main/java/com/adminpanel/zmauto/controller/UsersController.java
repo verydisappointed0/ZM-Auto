@@ -93,7 +93,7 @@ public class UsersController {
      */
     @FXML
     public void initialize() {
-        // Initialize the user service
+        // Initialize the users service
         userService = new UserService();
 
         // Initialize the role filter combo box
@@ -265,7 +265,7 @@ public class UsersController {
     }
 
     /**
-     * Update the button states based on the selected user.
+     * Update the button states based on the selected users.
      */
     private void updateButtonStates() {
         User selectedUser = usersTable.getSelectionModel().getSelectedItem();
@@ -275,7 +275,7 @@ public class UsersController {
         resetPasswordButton.setDisable(!hasSelection);
         deleteButton.setDisable(!hasSelection);
 
-        // Disable delete button for current user
+        // Disable delete button for current users
         if (hasSelection && dashboardController != null) {
             User currentUser = dashboardController.getCurrentUser();
             if (currentUser != null && currentUser.getId().equals(selectedUser.getId())) {
@@ -285,15 +285,15 @@ public class UsersController {
     }
 
     /**
-     * Show a dialog to add or edit a user.
+     * Show a dialog to add or edit a users.
      * 
-     * @param user The user to edit, or null to add a new user
+     * @param user The users to edit, or null to add a new users
      */
     private void showUserDialog(User user) {
         // Create a dialog
         Dialog<User> dialog = new Dialog<>();
         dialog.setTitle(user == null ? "Add User" : "Edit User");
-        dialog.setHeaderText(user == null ? "Add a new user" : "Edit user");
+        dialog.setHeaderText(user == null ? "Add a new users" : "Edit users");
 
         // Set the button types
         ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
@@ -378,7 +378,7 @@ public class UsersController {
             firstNameField.requestFocus();
         }
 
-        // Convert the result to a user when the save button is clicked
+        // Convert the result to a users when the save button is clicked
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
                 try {
@@ -392,7 +392,7 @@ public class UsersController {
                         return null;
                     }
 
-                    // Create or update the user
+                    // Create or update the users
                     if (user == null) {
                         // Convert LocalDate to Date for birthday
                         Date birthday = null;
@@ -400,7 +400,7 @@ public class UsersController {
                             birthday = Date.from(birthdayPicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
                         }
 
-                        // Create a new user
+                        // Create a new users
                         User newUser = new User(
                                 usernameField.getText().trim(),
                                 passwordField.getText().trim(),
@@ -425,7 +425,7 @@ public class UsersController {
                             birthday = Date.from(birthdayPicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
                         }
 
-                        // Update the existing user
+                        // Update the existing users
                         user.setFirstName(firstNameField.getText().trim());
                         user.setLastName(lastNameField.getText().trim());
                         user.setEmail(emailField.getText().trim());
@@ -449,7 +449,7 @@ public class UsersController {
                     return user;
 
                 } catch (SQLException e) {
-                    showError("Error saving user: " + e.getMessage());
+                    showError("Error saving users: " + e.getMessage());
                     e.printStackTrace();
                     return null;
                 }
@@ -461,15 +461,15 @@ public class UsersController {
     }
 
     /**
-     * Reset a user's password.
+     * Reset a users's password.
      * 
-     * @param user The user to reset password for
+     * @param user The users to reset password for
      */
     private void resetPassword(User user) {
         // Create a dialog for password reset
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Reset Password");
-        dialog.setHeaderText("Reset password for user: " + user.getUsername());
+        dialog.setHeaderText("Reset password for users: " + user.getUsername());
 
         // Set the button types
         ButtonType resetButtonType = new ButtonType("Reset", ButtonBar.ButtonData.OK_DONE);
@@ -539,12 +539,12 @@ public class UsersController {
     }
 
     /**
-     * Delete a user.
+     * Delete a users.
      * 
-     * @param user The user to delete
+     * @param user The users to delete
      */
     private void deleteUser(User user) {
-        // Don't allow deleting the current user
+        // Don't allow deleting the current users
         if (dashboardController != null) {
             User currentUser = dashboardController.getCurrentUser();
             if (currentUser != null && currentUser.getId().equals(user.getId())) {
@@ -556,7 +556,7 @@ public class UsersController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete User");
         alert.setHeaderText("Delete User");
-        alert.setContentText("Are you sure you want to delete the user: " + 
+        alert.setContentText("Are you sure you want to delete the users: " +
                 user.getUsername() + " (" + user.getFirstName() + " " + user.getLastName() + ")?");
 
         Optional<ButtonType> result = alert.showAndWait();
@@ -569,10 +569,10 @@ public class UsersController {
                     showInfo("User deleted successfully.");
                     loadUsers();
                 } else {
-                    showError("Failed to delete user.");
+                    showError("Failed to delete users.");
                 }
             } catch (SQLException e) {
-                showError("Error deleting user: " + e.getMessage());
+                showError("Error deleting users: " + e.getMessage());
                 e.printStackTrace();
             }
         }

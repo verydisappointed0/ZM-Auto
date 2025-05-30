@@ -568,7 +568,7 @@ public class ReservationsController {
 
             dialog.getDialogPane().setContent(grid);
 
-            // Request focus on the user field by default
+            // Request focus on the users field by default
             userComboBox.requestFocus();
 
             // Convert the result to a reservation when the save button is clicked

@@ -20,7 +20,7 @@ public class VehicleService {
      * @throws SQLException If a database error occurs
      */
     public Vehicle getVehicleById(Long id) throws SQLException {
-        String sql = "SELECT * FROM vehicles WHERE car_id = ?";
+        String sql = "SELECT * FROM car WHERE car_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -44,7 +44,7 @@ public class VehicleService {
      * @throws SQLException If a database error occurs
      */
     public List<Vehicle> getAllVehicles() throws SQLException {
-        String sql = "SELECT * FROM vehicles";
+        String sql = "SELECT * FROM car";
         List<Vehicle> vehicles = new ArrayList<>();
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -66,7 +66,7 @@ public class VehicleService {
      * @throws SQLException If a database error occurs
      */
     public List<Vehicle> getAvailableVehicles() throws SQLException {
-        String sql = "SELECT * FROM vehicles WHERE rental_status = 'AVAILABLE'";
+        String sql = "SELECT * FROM car WHERE rental_status = 'AVAILABLE'";
         List<Vehicle> vehicles = new ArrayList<>();
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -89,8 +89,8 @@ public class VehicleService {
      * @throws SQLException If a database error occurs
      */
     public Vehicle createVehicle(Vehicle vehicle) throws SQLException {
-        String sql = "INSERT INTO vehicles (license_plate, description, picture, brand, condition, model, " +
-                     "mileage, type, model_year, colour, transmission, fuel, seating_capacity, " +
+        String sql = "INSERT INTO car (license_plate, description, picture, brand, condition, model, " +
+                     "mileage, type, colour, transmission, fuel, seating_capacity, " +
                      "rental_price_per_day, rental_price_per_hour, rental_status, current_location, " +
                      "last_service_date, next_service_date, insurance_expiry_date, gps_enabled, rating, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -148,8 +148,8 @@ public class VehicleService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateVehicle(Vehicle vehicle) throws SQLException {
-        String sql = "UPDATE vehicles SET license_plate = ?, description = ?, picture = ?, brand = ?, " +
-                     "condition = ?, model = ?, mileage = ?, type = ?, model_year = ?, colour = ?, " +
+        String sql = "UPDATE car SET license_plate = ?, description = ?, picture = ?, brand = ?, " +
+                     "condition = ?, model = ?, mileage = ?, type = ?, colour = ?, " +
                      "transmission = ?, fuel = ?, seating_capacity = ?, rental_price_per_day = ?, " +
                      "rental_price_per_hour = ?, rental_status = ?, current_location = ?, " +
                      "last_service_date = ?, next_service_date = ?, insurance_expiry_date = ?, " +
@@ -198,7 +198,7 @@ public class VehicleService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateVehicleStatus(Long vehicleId, String status) throws SQLException {
-        String sql = "UPDATE vehicles SET rental_status = ?, updated_at = ? WHERE car_id = ?";
+        String sql = "UPDATE car SET rental_status = ?, updated_at = ? WHERE car_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -215,23 +215,84 @@ public class VehicleService {
 
     /**
      * Delete a vehicle.
+     * This method checks for references to the vehicle in other tables before deleting it.
+     * If there are references, it returns false. Otherwise, it deletes the vehicle.
      * 
      * @param vehicleId The vehicle ID
      * @return true if the deletion was successful, false otherwise
      * @throws SQLException If a database error occurs
      */
     public boolean deleteVehicle(Long vehicleId) throws SQLException {
-        String sql = "DELETE FROM vehicles WHERE car_id = ?";
+        // Start a transaction
+        Connection conn = null;
+        try {
+            conn = DatabaseUtil.beginTransaction();
 
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // Check if the vehicle is referenced in other tables
+            if (isVehicleReferenced(conn, vehicleId)) {
+                // Rollback the transaction and return false
+                DatabaseUtil.rollbackTransaction();
+                return false;
+            }
 
-            stmt.setLong(1, vehicleId);
+            // Delete the vehicle
+            String sql = "DELETE FROM car WHERE car_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setLong(1, vehicleId);
+                int affectedRows = stmt.executeUpdate();
 
-            int affectedRows = stmt.executeUpdate();
+                // Commit the transaction
+                DatabaseUtil.commitTransaction();
 
-            return affectedRows > 0;
+                return affectedRows > 0;
+            }
+        } catch (SQLException e) {
+            // Rollback the transaction if an error occurs
+            if (conn != null) {
+                DatabaseUtil.rollbackTransaction();
+            }
+            throw e;
         }
+    }
+
+    /**
+     * Check if a vehicle is referenced in other tables.
+     * 
+     * @param conn The database connection
+     * @param vehicleId The vehicle ID
+     * @return true if the vehicle is referenced, false otherwise
+     * @throws SQLException If a database error occurs
+     */
+    private boolean isVehicleReferenced(Connection conn, Long vehicleId) throws SQLException {
+        // Check if the vehicle is referenced in the driver table
+        String driversQuery = "SELECT COUNT(*) FROM driver WHERE car_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(driversQuery)) {
+            stmt.setLong(1, vehicleId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return true;
+                }
+            }
+        }
+
+        // Check if the vehicle is referenced in the reservations table
+        String reservationsQuery = "SELECT COUNT(*) FROM reservations WHERE Car_ID = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(reservationsQuery)) {
+            stmt.setLong(1, vehicleId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return true;
+                }
+            }
+        }
+
+
+
+
+
+
+        // If the vehicle is not referenced in any table, return false
+        return false;
     }
 
     /**
