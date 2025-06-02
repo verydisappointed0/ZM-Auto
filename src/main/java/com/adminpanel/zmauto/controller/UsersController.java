@@ -42,8 +42,6 @@ public class UsersController {
     @FXML
     private TableColumn<User, Long> idColumn;
 
-    @FXML
-    private TableColumn<User, String> usernameColumn;
 
     @FXML
     private TableColumn<User, String> firstNameColumn;
@@ -103,7 +101,6 @@ public class UsersController {
 
         // Initialize the table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
@@ -247,7 +244,6 @@ public class UsersController {
             // Apply search filter if provided
             if (!searchText.isEmpty()) {
                 userList.removeIf(user -> 
-                        !user.getUsername().toLowerCase().contains(searchText.toLowerCase()) &&
                         !user.getEmail().toLowerCase().contains(searchText.toLowerCase()) &&
                         !user.getFirstName().toLowerCase().contains(searchText.toLowerCase()) &&
                         !user.getLastName().toLowerCase().contains(searchText.toLowerCase()));
@@ -469,7 +465,7 @@ public class UsersController {
         // Create a dialog for password reset
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Reset Password");
-        dialog.setHeaderText("Reset password for users: " + user.getUsername());
+        dialog.setHeaderText("Reset password for users: " + user.getLastName());
 
         // Set the button types
         ButtonType resetButtonType = new ButtonType("Reset", ButtonBar.ButtonData.OK_DONE);
@@ -557,7 +553,7 @@ public class UsersController {
         alert.setTitle("Delete User");
         alert.setHeaderText("Delete User");
         alert.setContentText("Are you sure you want to delete the users: " +
-                user.getUsername() + " (" + user.getFirstName() + " " + user.getLastName() + ")?");
+                user.getLastName() + " (" + user.getFirstName() + " " + user.getLastName() + ")?");
 
         Optional<ButtonType> result = alert.showAndWait();
 

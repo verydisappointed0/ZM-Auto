@@ -14,26 +14,28 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Controller for the login view.
  */
 public class LoginController {
-    
+
     @FXML
     private TextField usernameField;
-    
+
     @FXML
     private PasswordField passwordField;
-    
+
     @FXML
     private Label errorLabel;
-    
+
     @FXML
     private Button loginButton;
-    
+
     private UserService userService;
-    
+
     /**
      * Initialize the controller.
      */
@@ -41,11 +43,11 @@ public class LoginController {
     public void initialize() {
         // Initialize the users service
         userService = new UserService();
-        
+
         // Hide the error label initially
         errorLabel.setVisible(false);
     }
-    
+
     /**
      * Handle login button click.
      * 
@@ -53,32 +55,40 @@ public class LoginController {
      */
     @FXML
     protected void onLoginButtonClick(ActionEvent event) {
-        String username = usernameField.getText().trim();
+        String lastName = usernameField.getText().trim();
         String password = passwordField.getText().trim();
-        
+
         // Validate input
-        if (username.isEmpty() || password.isEmpty()) {
-            showError("Please enter both username and password");
+        if (lastName.isEmpty() || password.isEmpty()) {
+            showError("Last name and password are required");
             return;
         }
-        
-        // Attempt to authenticate
+
         try {
-            User user = userService.authenticate(username, password);
-            if (user != null) {
-                // Authentication successful, navigate to dashboard
-                navigateToDashboard(user);
+            // Get all users and find the one with matching last name
+            List<User> users = userService.getAllUsers();
+            User authenticatedUser = null;
+
+            for (User user : users) {
+                if (user.getLastName().equalsIgnoreCase(lastName) && user.verifyPassword(password)) {
+                    authenticatedUser = user;
+                    break;
+                }
+            }
+
+            if (authenticatedUser != null) {
+                // Navigate to dashboard
+                navigateToDashboard(authenticatedUser);
             } else {
-                // Authentication failed
-                showError("Invalid username or password");
+                showError("Invalid last name or password");
             }
         } catch (Exception e) {
-            // Handle authentication error
-            showError("Error during authentication: " + e.getMessage());
+            showError("Login error: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
+
     /**
      * Show an error message.
      * 
@@ -88,7 +98,7 @@ public class LoginController {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
     }
-    
+
     /**
      * Navigate to the dashboard view.
      * 
@@ -99,22 +109,22 @@ public class LoginController {
             // Load the dashboard view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/adminpanel/zmauto/dashboard-view.fxml"));
             Parent dashboardRoot = loader.load();
-            
+
             // Get the controller and pass the authenticated users
             DashboardController dashboardController = loader.getController();
             dashboardController.setUser(user);
-            
+
             // Create a new scene with the dashboard view
             Scene dashboardScene = new Scene(dashboardRoot);
-            
+
             // Get the current stage
             Stage stage = (Stage) loginButton.getScene().getWindow();
-            
+
             // Set the new scene on the stage
             stage.setScene(dashboardScene);
             stage.setTitle("ZM-Auto Admin Panel - Dashboard");
             stage.setMaximized(true);
-            
+
         } catch (IOException e) {
             showError("Error loading dashboard: " + e.getMessage());
             e.printStackTrace();

@@ -15,36 +15,7 @@ import java.util.List;
  */
 public class UserService {
 
-    /**
-     * Authenticate a users with the given username and password.
-     * 
-     * @param username The username
-     * @param password The password
-     * @return The authenticated users, or null if authentication fails
-     * @throws SQLException If a database error occurs
-     */
-    public User authenticate(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM user WHERE username = ?";
 
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, username);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    User user = mapResultSetToUser(rs);
-
-                    // Verify the password
-                    if (user.verifyPassword(password)) {
-                        return user;
-                    }
-                }
-            }
-        }
-
-        return null; // Authentication failed
-    }
 
     /**
      * Get a users by ID.
@@ -101,14 +72,13 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public User createUser(User user) throws SQLException {
-        String sql = "INSERT INTO user (username, password, first_name, last_name, email, " +
+        String sql = "INSERT INTO user (password, first_name, last_name, email, " +
                      "picture, birthday, phone_number, address, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword()); // Password should already be hashed
             stmt.setString(3, user.getFirstName());
             stmt.setString(4, user.getLastName());
@@ -145,23 +115,21 @@ public class UserService {
      * @throws SQLException If a database error occurs
      */
     public boolean updateUser(User user) throws SQLException {
-        String sql = "UPDATE user SET username = ?, first_name = ?, last_name = ?, email = ?, " +
+        String sql = "UPDATE user SET first_name = ?, last_name = ?, email = ?, " +
                      "picture = ?, birthday = ?, phone_number = ?, address = ?, updated_at = CURRENT_TIMESTAMP " +
                      "WHERE user_id = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getFirstName());
-            stmt.setString(3, user.getLastName());
-            stmt.setString(4, user.getEmail());
-            stmt.setString(5, user.getRole());
-            stmt.setString(6, user.getPicture());
-            stmt.setDate(7, user.getBirthday() != null ? new java.sql.Date(user.getBirthday().getTime()) : null);
-            stmt.setString(8, user.getPhoneNumber());
-            stmt.setString(9, user.getAddress());
-            stmt.setLong(10, user.getId());
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getLastName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getPicture());
+            stmt.setDate(5, user.getBirthday() != null ? new java.sql.Date(user.getBirthday().getTime()) : null);
+            stmt.setString(6, user.getPhoneNumber());
+            stmt.setString(7, user.getAddress());
+            stmt.setLong(8, user.getId());
 
             int affectedRows = stmt.executeUpdate();
 

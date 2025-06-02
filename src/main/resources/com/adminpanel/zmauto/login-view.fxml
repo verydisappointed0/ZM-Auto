@@ -26,8 +26,8 @@
                         <Insets bottom="30.0" />
                      </VBox.margin>
                   </Label>
-                  <Label text="Username" />
-                  <TextField fx:id="usernameField" promptText="Enter your username" styleClass="login-field">
+                  <Label text="Last Name" />
+                  <TextField fx:id="usernameField" promptText="Enter your last name" styleClass="login-field">
                      <VBox.margin>
                         <Insets bottom="15.0" />
                      </VBox.margin>

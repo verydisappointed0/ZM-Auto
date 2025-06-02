@@ -112,12 +112,12 @@ CREATE TABLE IF NOT EXISTS payments (
 INSERT INTO users (username, password, first_name, last_name, email, role, created_at)
 SELECT 'admin', 'JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=', 'System', 'Administrator', 'admin@zmauto.com', 'ADMIN', CURRENT_TIMESTAMP
 FROM dual
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE last_name = 'Administrator');
 
 INSERT INTO users (username, password, first_name, last_name, email, role, created_at)
 SELECT 'user1', 'JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=', 'John', 'Smith', 'john.smith@example.com', 'USER', CURRENT_TIMESTAMP
 FROM dual
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'user1');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE last_name = 'Smith');
 
 
 
@@ -197,7 +197,7 @@ WHERE NOT EXISTS (
 -- Insert sample reservations if they don't exist
 INSERT INTO reservations (user_id, vehicle_id, driver_needed, driver_id, start_date, end_date, status, notes, total_cost, created_at)
 SELECT 
-    (SELECT user_id FROM users WHERE username = 'admin'),
+    (SELECT user_id FROM users WHERE last_name = 'Administrator'),
     (SELECT car_id FROM car WHERE license_plate = 'ABC123'),
     TRUE,
     (SELECT driver_id FROM driver WHERE first_name = 'John' AND last_name = 'Doe'),
@@ -205,14 +205,14 @@ SELECT
 FROM dual
 WHERE NOT EXISTS (
     SELECT 1 FROM reservations 
-    WHERE user_id = (SELECT user_id FROM users WHERE username = 'admin')
+    WHERE user_id = (SELECT user_id FROM users WHERE last_name = 'Administrator')
     AND vehicle_id = (SELECT car_id FROM car WHERE license_plate = 'ABC123')
     AND start_date = '2023-06-01'
 );
 
 INSERT INTO reservations (user_id, vehicle_id, driver_needed, driver_id, start_date, end_date, status, notes, total_cost, created_at)
 SELECT 
-    (SELECT user_id FROM users WHERE username = 'user1'),
+    (SELECT user_id FROM users WHERE last_name = 'Smith'),
     (SELECT car_id FROM car WHERE license_plate = 'DEF456'),
     FALSE,
     NULL,
@@ -220,7 +220,7 @@ SELECT
 FROM dual
 WHERE NOT EXISTS (
     SELECT 1 FROM reservations 
-    WHERE user_id = (SELECT user_id FROM users WHERE username = 'user1')
+    WHERE user_id = (SELECT user_id FROM users WHERE last_name = 'Smith')
     AND vehicle_id = (SELECT car_id FROM car WHERE license_plate = 'DEF456')
     AND start_date = '2023-07-10'
 );
@@ -228,14 +228,11 @@ WHERE NOT EXISTS (
 -- Insert sample payments if they don't exist
 INSERT INTO payments (reservation_id, amount, payment_method, status, transaction_id, notes, payment_date)
 SELECT 
-    (SELECT id FROM reservations WHERE user_id = (SELECT user_id FROM users WHERE username = 'admin') AND start_date = '2023-06-01'),
+    (SELECT id FROM reservations WHERE user_id = (SELECT user_id FROM users WHERE last_name = 'Administrator') AND start_date = '2023-06-01'),
     250.00, 'CREDIT_CARD', 'COMPLETED', 'TXN-12345', 'Payment for business trip', '2023-05-20 11:30:00'
 FROM dual
 WHERE NOT EXISTS (
     SELECT 1 FROM payments 
-    WHERE reservation_id = (SELECT id FROM reservations WHERE user_id = (SELECT user_id FROM users WHERE username = 'admin') AND start_date = '2023-06-01')
+    WHERE reservation_id = (SELECT id FROM reservations WHERE user_id = (SELECT user_id FROM users WHERE last_name = 'Administrator') AND start_date = '2023-06-01')
     AND transaction_id = 'TXN-12345'
 );
-
-
-
